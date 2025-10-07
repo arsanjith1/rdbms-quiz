@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Quiz Practice</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+        color: #333;
+        margin: 0;
+        padding: 20px;
+    }
+    .container {
+        max-width: 800px;
+        margin: auto;
+        background: white;
+        padding: 20px;
+        border-radius: 12px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+        text-align: center;
+        color: #0077b6;
+    }
+    .question {
+        margin-bottom: 20px;
+        padding: 15px;
+        background: #f9f9f9;
+        border-left: 5px solid #0077b6;
+        border-radius: 8px;
+    }
+    .options label {
+        display: block;
+        background: #e9ecef;
+        margin: 6px 0;
+        padding: 8px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    .options input {
+        margin-right: 10px;
+    }
+    .correct {
+        background-color: #d4edda !important;
+        color: #155724;
+    }
+    .wrong {
+        background-color: #f8d7da !important;
+        color: #721c24;
+    }
+    .answer {
+        margin-top: 5px;
+        font-weight: bold;
+        color: #0077b6;
+    }
+    #result {
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+        margin-top: 30px;
+        color: #0077b6;
+    }
+    button {
+        background-color: #0077b6;
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        cursor: pointer;
+        display: block;
+        margin: 20px auto;
+    }
+    button:hover {
+        background-color: #005f86;
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DBMS Quiz Practice</h1>
+    <form id="quizForm"></form>
+    <button type="button" onclick="submitQuiz()">Submit Quiz</button>
+    <div id="result"></div>
+</div>
+
+<script>
+const questions = [
+    {q:"What does DBMS stand for?", options:["Data Backup Management System","Database Management System","Digital Base Monitoring Software","Data Base Monitoring System"], answer:1},
+    {q:"Which SQL command is used to remove a table?", options:["DELETE","REMOVE","DROP","ERASE"], answer:2},
+    {q:"What is the default port number for MySQL?", options:["3306","8080","1433","1521"], answer:0},
+    {q:"Which clause is used to filter rows in a SELECT query?", options:["ORDER BY","GROUP BY","WHERE","HAVING"], answer:2},
+    {q:"Which clause is used to group rows in SQL?", options:["ORDER BY","GROUP BY","HAVING","SELECT"], answer:1},
+    {q:"Which function returns the current date in MySQL?", options:["DATE()","NOW()","CURRENT_DATE()","SYSDATE()"], answer:2},
+    {q:"What is a trigger in MySQL?", options:["A stored image","A scheduled backup","A procedure that runs automatically","A type of index"], answer:2},
+    {q:"Which keyword is used to remove a view?", options:["DELETE VIEW","REMOVE VIEW","DROP VIEW","ERASE VIEW"], answer:2},
+    {q:"What is the purpose of the IFNULL() function?", options:["To check if a column is empty","To replace NULL with a specified value","To delete NULL values","To count NULL values"], answer:1},
+    {q:"Which type of join returns all rows from both tables?", options:["INNER JOIN","LEFT JOIN","RIGHT JOIN","FULL OUTER JOIN"], answer:3},
+    {q:"Which operator is used for pattern matching in SQL?", options:["=","LIKE","MATCH","FIND"], answer:1},
+    {q:"What does the COMMIT command do?", options:["Cancels a transaction","Saves changes permanently","Starts a new transaction","Deletes temporary data"], answer:1},
+    {q:"Which clause is used to filter grouped data?", options:["WHERE","ORDER BY","HAVING","SELECT"], answer:2},
+    {q:"What is the purpose of a cursor in MySQL?", options:["To store images","To iterate over query results","To create indexes","To delete rows"], answer:1},
+    {q:"Which join returns only matching rows from both tables?", options:["FULL JOIN","CROSS JOIN","INNER JOIN","OUTER JOIN"], answer:2},
+    {q:"Which command is used to create a new database?", options:["MAKE DATABASE","CREATE DATABASE","INIT DATABASE","NEW DATABASE"], answer:1},
+    {q:"What is a stored procedure?", options:["A backup file","A predefined SQL block","A table view","A type of join"], answer:1},
+    {q:"Which function is used to convert data types in MySQL?", options:["CHANGE","CAST()","FORMAT()","TYPE()"], answer:1},
+    {q:"What is the use of the CASE statement?", options:["To create tables","To handle conditional logic","To delete rows","To format output"], answer:1},
+    {q:"Which clause is used to sort query results?", options:["GROUP BY","ORDER BY","SORT","ARRANGE"], answer:1},
+    {q:"Which command is used to modify an existing table?", options:["ALTER","UPDATE","MODIFY","CHANGE"], answer:0},
+    {q:"What is the use of the SELECT statement?", options:["To delete data","To retrieve data","To update data","To create a table"], answer:1},
+    {q:"Which function returns the maximum value in a column?", options:["MAX()","HIGH()","TOP()","GREATEST()"], answer:0},
+    {q:"What does the DELETE command do?", options:["Removes a table","Removes rows from a table","Removes a database","Removes a column"], answer:1},
+    {q:"Which clause is used to filter rows before grouping?", options:["HAVING","WHERE","ORDER BY","SELECT"], answer:1},
+    {q:"What is the use of WHILE loop in MySQL?", options:["To repeat a block while a condition is true","To repeat a block once","To repeat a block until a condition is true","To repeat a block for a fixed number of times"], answer:0},
+    {q:"Which join returns unmatched rows from the left table?", options:["INNER JOIN","LEFT JOIN","RIGHT JOIN","CROSS JOIN"], answer:1},
+    {q:"Which function returns the number of rows in a result set?", options:["COUNT()","SUM()","TOTAL()","NUMBER()"], answer:0},
+    {q:"What is the use of SAVEPOINT in transactions?", options:["To delete a table","To create a rollback point","To commit changes","To start a transaction"], answer:1},
+    {q:"Which function returns the length of a string?", options:["LENGTH()","SIZE()","CHARCOUNT()","STRLEN()"], answer:0}
+];
+
+const quizForm = document.getElementById("quizForm");
+let score = 0;
+
+questions.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `<h3>${i + 1}. ${item.q}</h3>`;
+    const optDiv = document.createElement("div");
+    optDiv.classList.add("options");
+    item.options.forEach((opt, j) => {
+        const id = `q${i}_opt${j}`;
+        optDiv.innerHTML += `
+            <label><input type="radio" name="q${i}" id="${id}" value="${j}" onclick="checkAnswer(${i},${j},this)"> ${opt}</label>`;
+    });
+    div.appendChild(optDiv);
+    const ans = document.createElement("div");
+    ans.classList.add("answer");
+    ans.id = `ans${i}`;
+    div.appendChild(ans);
+    quizForm.appendChild(div);
+});
+
+function checkAnswer(qIndex, selected, element) {
+    const correct = questions[qIndex].answer;
+    const labels = element.closest(".options").querySelectorAll("label");
+    labels.forEach(l => l.classList.remove("correct","wrong"));
+    if (selected === correct) {
+        element.parentElement.classList.add("correct");
+        document.getElementById(`ans${qIndex}`).innerHTML = "✅ Correct!";
+    } else {
+        element.parentElement.classList.add("wrong");
+        document.getElementById(`ans${qIndex}`).innerHTML =
+          `❌ Wrong! Correct answer: ${questions[qIndex].options[correct]}`;
+    }
+}
+
+function submitQuiz() {
+    score = 0;
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected && parseInt(selected.value) === q.answer) score++;
+    });
+    document.getElementById("result").innerHTML = 
+        `🎯 You scored ${score} / ${questions.length}`;
+}
+</script>
+
+</body>
+</html>

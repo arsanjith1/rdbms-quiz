@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Quiz Practice – Set 2</title>
+<style>
+    body { font-family: Arial; background: #f4f6f9; color: #333; margin: 0; padding: 20px;}
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    h1 { text-align: center; color: #0077b6;}
+    .question { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-left: 5px solid #0077b6; border-radius: 8px;}
+    .options label { display: block; background: #e9ecef; margin: 6px 0; padding: 8px; border-radius: 6px; cursor: pointer;}
+    .options input { margin-right: 10px;}
+    .correct { background-color: #d4edda !important; color: #155724;}
+    .wrong { background-color: #f8d7da !important; color: #721c24;}
+    .answer { margin-top: 5px; font-weight: bold; color: #0077b6;}
+    #result { text-align: center; font-size: 22px; font-weight: bold; margin-top: 30px; color: #0077b6;}
+    button { background-color: #0077b6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; display: block; margin: 20px auto;}
+    button:hover { background-color: #005f86;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DBMS Quiz – Set 2</h1>
+    <form id="quizForm"></form>
+    <button type="button" onclick="submitQuiz()">Submit Quiz</button>
+    <div id="result"></div>
+</div>
+
+<script>
+const questions = [
+    {q:"A collection of related records, organized into rows and columns, is called a", options:["Database","Report","Table (or Relation)","Query"], answer:2},
+    {q:"What is the role of a 'primary key' in a table?", options:["To restrict access to the table","To uniquely identify each record in the table","To link tables together","To sort the data in ascending order"], answer:1},
+    {q:"Which component of a DBMS is responsible for managing data storage and retrieval?", options:["Query processor","Storage manager","Transaction manager","Metadata manager"], answer:1},
+    {q:"Which component of a DBMS provides information about the database structure and schema?", options:["Metadata manager","Query processor","Storage manager","Transaction manager"], answer:0},
+    {q:"Can a primary key consist of multiple columns?", options:["Yes","No","Only in certain database systems","Only for specific data types"], answer:0},
+    {q:"What is the term for the table that contains the foreign key?", options:["Parent table","Child table","Reference table","Dependent table"], answer:1},
+    {q:"What is the maximum size of a TINYINT in MySQL?", options:["127","255","65,535","32,767"], answer:0},
+    {q:"Which data type is used for storing binary data like images or files?", options:["TEXT","ENUM","BLOB","VARCHAR"], answer:2},
+    {q:"Which DDL command is used to rename a table?", options:["UPDATE","RENAME","ALTER TABLE","CHANGE"], answer:1},
+    {q:"Which command would you use to add a new column to an existing table?", options:["INSERT COLUMN","ADD COLUMN","ALTER TABLE ... ADD","UPDATE"], answer:2},
+    {q:"Which SQL clause is used with UPDATE or DELETE to target specific rows?", options:["WHERE","FROM","HAVING","SELECT"], answer:0},
+    {q:"Which of these is used to remove all records from a table but keep the table structure?", options:["DROP","DELETE with WHERE","DELETE with WHERE","TRUNCATE"], answer:3},
+    {q:"Which function in MySQL returns a value if the expression is NULL?", options:["IF()","IFNULL","CASE","COALESCE"], answer:1},
+    {q:"Which statement is used to exit a loop in MySQL stored procedures?", options:["BREAK","EXIT","LEAVE","STOP"], answer:2},
+    {q:"What will the following MySQL statement return? SELECT IF(5 > 3, 'Yes', 'No');", options:["5","Yes","No","Error"], answer:1},
+    {q:"IFNULL() can take how many arguments?", options:["1","2","3","0"], answer:1},
+    {q:"Which keyword ends a LOOP block in MySQL?", options:["END LOOP","END","CLOSE","FINISH"], answer:0},
+    {q:"Which of the following is correct syntax for REPEAT loop?", options:["REPEAT … UNTIL condition; END REPEAT;","REPEAT … UNTIL condition;","DO … REPEAT condition; END;","LOOP … REPEAT condition; END LOOP;"], answer:0},
+    {q:"What is the primary use of an index in MySQL?", options:["To store backup","To improve query speed","To reduce storage space","To convert data types"], answer:1},
+    {q:"Which MySQL statement is used to create an index on a table?", options:["ADD INDEX","NEW INDEX","CREATE INDEX","ALTER TABLE ... ADD INDEX"], answer:2},
+    {q:"Which command is used to delete an index in MySQL?", options:["REMOVE INDEX","DROP INDEX","DELETE INDEX","TRUNCATE INDEX"], answer:1},
+    {q:"Which command shows the list of indexes on a table products?", options:["LIST INDEXES FROM products;","SHOW INDEX FROM products;","GET INDEXES products;","SHOW KEYS OF products;"], answer:1},
+    {q:"What must you specify when indexing a BLOB or TEXT column?", options:["A default value","The engine type","A prefix length","The column size"], answer:2},
+    {q:"Which of the following operations may slow down with too many indexes?", options:["SELECT","INSERT and UPDATE","DROP TABLE","CREATE DATABASE"], answer:1},
+    {q:"The stored program concept was proposed by:", options:["Charles Babbage","Alan Turing","John von Neumann","Ada Lovelace"], answer:2},
+    {q:"In the stored program concept, both program instructions and data are stored in:", options:["Hard disk","ALU","CPU registers","Main memory (RAM)"], answer:3},
+    {q:"The key benefit of the stored program concept is:", options:["Increased storage space","Simplified arithmetic","Programs can be easily modified","Separation of data and instruction"], answer:2},
+    {q:"Which component fetches and decodes instructions from memory in stored program computers?", options:["ALU","Control Unit","Memory","I/O Unit"], answer:1},
+    {q:"A stored function in MySQL:", options:["Can return multiple values","Is always executed automatically","Returns a single value","Cannot accept parameters"], answer:2}
+];
+
+const quizForm = document.getElementById("quizForm");
+let score = 0;
+
+questions.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `<h3>${i + 1}. ${item.q}</h3>`;
+    const optDiv = document.createElement("div");
+    optDiv.classList.add("options");
+    item.options.forEach((opt, j) => {
+        const id = `q${i}_opt${j}`;
+        optDiv.innerHTML += `
+            <label><input type="radio" name="q${i}" id="${id}" value="${j}" onclick="checkAnswer(${i},${j},this)"> ${opt}</label>`;
+    });
+    div.appendChild(optDiv);
+    const ans = document.createElement("div");
+    ans.classList.add("answer");
+    ans.id = `ans${i}`;
+    div.appendChild(ans);
+    quizForm.appendChild(div);
+});
+
+function checkAnswer(qIndex, selected, element) {
+    const correct = questions[qIndex].answer;
+    const labels = element.closest(".options").querySelectorAll("label");
+    labels.forEach(l => l.classList.remove("correct","wrong"));
+    if (selected === correct) {
+        element.parentElement.classList.add("correct");
+        document.getElementById(`ans${qIndex}`).innerHTML = "✅ Correct!";
+    } else {
+        element.parentElement.classList.add("wrong");
+        document.getElementById(`ans${qIndex}`).innerHTML =
+          `❌ Wrong! Correct answer: ${questions[qIndex].options[correct]}`;
+    }
+}
+
+function submitQuiz() {
+    score = 0;
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected && parseInt(selected.value) === q.answer) score++;
+    });
+    document.getElementById("result").innerHTML = 
+        `🎯 You scored ${score} / ${questions.length}`;
+}
+</script>
+</body>
+</html>

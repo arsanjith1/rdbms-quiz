@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DBMS Quiz Practice – Set 3</title>
+<style>
+    body { font-family: Arial; background: #f4f6f9; color: #333; margin: 0; padding: 20px;}
+    .container { max-width: 800px; margin: auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);}
+    h1 { text-align: center; color: #0077b6;}
+    .question { margin-bottom: 20px; padding: 15px; background: #f9f9f9; border-left: 5px solid #0077b6; border-radius: 8px;}
+    .options label { display: block; background: #e9ecef; margin: 6px 0; padding: 8px; border-radius: 6px; cursor: pointer;}
+    .options input { margin-right: 10px;}
+    .correct { background-color: #d4edda !important; color: #155724;}
+    .wrong { background-color: #f8d7da !important; color: #721c24;}
+    .answer { margin-top: 5px; font-weight: bold; color: #0077b6;}
+    #result { text-align: center; font-size: 22px; font-weight: bold; margin-top: 30px; color: #0077b6;}
+    button { background-color: #0077b6; color: white; padding: 10px 20px; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; display: block; margin: 20px auto;}
+    button:hover { background-color: #005f86;}
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>DBMS Quiz – Set 3</h1>
+    <form id="quizForm"></form>
+    <button type="button" onclick="submitQuiz()">Submit Quiz</button>
+    <div id="result"></div>
+</div>
+
+<script>
+const questions = [
+    {q:"Which of the following is NOT a characteristic of a database?", options:["Data redundancy","Data sharing","Data security","Data integrity"], answer:0},
+    {q:"Which of the following is a component of a Database System Environment?", options:["Hardware","Software (DBMS)","Data","All of the above"], answer:3},
+    {q:"What type of constraint ensures that a column contains only unique values?", options:["Primary key constraint","Foreign key constraint","Check constraint","Unique constraint"], answer:3},
+    {q:"Which of the following is a key aspect of referential integrity?", options:["Primary keys","Foreign keys","Indexes","Views"], answer:1},
+    {q:"MySQL offers different storage engines. Which of these is a popular storage engine in MySQL?", options:["SQLDB","MyISAM","PostgreSQL","OracleDB"], answer:1},
+    {q:"Which of the following databases uses SQL?", options:["MySQL","PostgreSQL","SQL Server","All of the above"], answer:3},
+    {q:"What value does a MySQL BOOLEAN field store internally?", options:["TRUE or FALSE","'YES' or 'NO'","1 or 0","'T' or 'F'"], answer:2},
+    {q:"Which command is used to delete a table structure (but not the database)?", options:["DELETE","REMOVE","DROP","ERASE"], answer:2},
+    {q:"Which command would you use to add a new column to an existing table?", options:["INSERT COLUMN","ADD COLUMN","ALTER TABLE ... ADD","UPDATE"], answer:2},
+    {q:"What does DDL stand for?", options:["Data Decision Logic","Data Definition Language","Data Design Level","Database Design Language"], answer:1},
+    {q:"Which keyword is used to modify existing records in a table?", options:["ADD","CHANGE","UPDATE","ALTER"], answer:2},
+    {q:"In SQL, how do you insert NULL into a field?", options:["INSERT 'NULL'","INSERT NULL","INSERT NONE","Leave the field blank"], answer:1},
+    {q:"Which of the following cannot be used inside a stored procedure?", options:["IF","LOOP","CURSOR","REPEAT"], answer:3},
+    {q:"LEAVE is similar to which keyword in programming?", options:["continue","break","exit","return"], answer:1},
+    {q:"Which of the following flow controls is conditional?", options:["LOOP","REPEAT","WHILE","ITERATE"], answer:2},
+    {q:"Which function can replace NULL with a default value?", options:["IF()","IFNULL","CASE","COALESCE"], answer:1},
+    {q:"What will this return? SELECT IF(10 < 5, 'Yes', 'No');", options:["Yes","No","NULL","Error"], answer:1},
+    {q:"Which function evaluates an expression and returns one value based on a condition?", options:["IF","IFNULL","CASE","LEAVE"], answer:0},
+    {q:"Which keyword is used to create a stored procedure?", options:["MAKE PROCEDURE","NEW PROCEDURE","CREATE PROCEDURE","DEFINE PROCEDURE"], answer:2},
+    {q:"In MySQL, what type of value can a function return?", options:["Only integers","Only strings","Any valid MySQL data type","Only Booleans"], answer:2},
+    {q:"To remove a stored function from MySQL, which command is used?", options:["DELETE FUNCTION","DROP FUNCTION","REMOVE FUNCTION","ERASE FUNCTION"], answer:1},
+    {q:"Which of the following cannot be used inside a stored function?", options:["SELECT","INSERT","UPDATE","COMMIT"], answer:3},
+    {q:"How is a stored function called in MySQL?", options:["CALL function_name();","EXEC function_name;","SELECT function_name();","DO function_name();"], answer:2},
+    {q:"Which keyword is used to return a value from a stored function?", options:["OUT","RETURN","BACK","END"], answer:1},
+    {q:"What is the maximum number of columns allowed in a composite index in MySQL (as per current versions)?", options:["5","8","16","Unlimited"], answer:2},
+    {q:"Which index type is more flexible for single-column queries?", options:["Composite","Clustered","Simple","Spatial"], answer:2},
+    {q:"Which clause is used to create a full-text index?", options:["CREATE FULL INDEX","CREATE FULLTEXT INDEX","ADD FULLTEXT","ALTER INDEX FULLTEXT"], answer:1},
+    {q:"To ensure no duplicate values in a column, which index should be used?", options:["Full-text index","Spatial index","Unique index","Composite index"], answer:2},
+    {q:"Which of the following cannot be indexed in MySQL?", options:["INT","VARCHAR","TEXT","BLOB (without prefix length)"], answer:3},
+    {q:"Which command is used to delete an index in MySQL?", options:["REMOVE INDEX","DROP INDEX","DELETE INDEX","TRUNCATE INDEX"], answer:1}
+];
+
+const quizForm = document.getElementById("quizForm");
+let score = 0;
+
+questions.forEach((item, i) => {
+    const div = document.createElement("div");
+    div.classList.add("question");
+    div.innerHTML = `<h3>${i + 1}. ${item.q}</h3>`;
+    const optDiv = document.createElement("div");
+    optDiv.classList.add("options");
+    item.options.forEach((opt, j) => {
+        const id = `q${i}_opt${j}`;
+        optDiv.innerHTML += `
+            <label><input type="radio" name="q${i}" id="${id}" value="${j}" onclick="checkAnswer(${i},${j},this)"> ${opt}</label>`;
+    });
+    div.appendChild(optDiv);
+    const ans = document.createElement("div");
+    ans.classList.add("answer");
+    ans.id = `ans${i}`;
+    div.appendChild(ans);
+    quizForm.appendChild(div);
+});
+
+function checkAnswer(qIndex, selected, element) {
+    const correct = questions[qIndex].answer;
+    const labels = element.closest(".options").querySelectorAll("label");
+    labels.forEach(l => l.classList.remove("correct","wrong"));
+    if (selected === correct) {
+        element.parentElement.classList.add("correct");
+        document.getElementById(`ans${qIndex}`).innerHTML = "✅ Correct!";
+    } else {
+        element.parentElement.classList.add("wrong");
+        document.getElementById(`ans${qIndex}`).innerHTML =
+          `❌ Wrong! Correct answer: ${questions[qIndex].options[correct]}`;
+    }
+}
+
+function submitQuiz() {
+    score = 0;
+    questions.forEach((q, i) => {
+        const selected = document.querySelector(`input[name="q${i}"]:checked`);
+        if (selected && parseInt(selected.value) === q.answer) score++;
+    });
+    document.getElementById("result").innerHTML = 
+        `🎯 You scored ${score} / ${questions.length}`;
+}
+</script>
+</body>
+</html>
